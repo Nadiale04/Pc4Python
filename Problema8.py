@@ -1,27 +1,51 @@
 import requests
 import sqlite3
-try:
-    cantidad = int(input("Ingrese la cantidad de Bitcoins: "))
-except ValueError:
-       print("Ha ocurrido un error, introduce bien el número")
-       exit()
-       
 
-url= "https://api.coindesk.com/v1/bpi/currentprice.json"
+def bitcoin(moneda):
+    url= "https://api.coindesk.com/v1/bpi/currentprice.json"
+    response = requests.get(url)
+    data=response.json()
+    precio_str = data['bpi'][moneda]['rate'].replace(',', '') 
+    precio = float(precio_str)
+    return precio
 
-response = requests.get(url)
-datos = response.json()
+def tipo_cambio():
+    url = 'https://api.apis.net.pe/v1/tipo-cambio-sunat'
+    response=requests.get(url)
+    data=response.json()
+    tipo_cambio_pen= data['compra']
+    return float(tipo_cambio_pen)
 
-precio_dolares = datos['bpi']['USD']['rate']
-precio_gbp = datos['bpi']['GBP']['rate']
-precio_euro = datos['bpi']['EUR']['rate']
+conn = sqlite3.connect('base.db')
+cursor = conn.cursor()
 
-url= "https://api.coindesk.com/v1/bpi/currentprice.json"
-
-sentencia = ('''CREATE TABLE IF NOT EXISTS bitcoin (
+sentencia=('''CREATE TABLE IF NOT EXISTS bitcoin (
                     fecha TEXT PRIMARY KEY,
-                    precio USD DECIMAL,
-                    precio GBP DECIMAL,
-                    precio EUR DECIMAL,
-                    precio PEN DECIMAL
+                    precio_usd DECIMAL,
+                    precio_gbp DECIMAL,
+                    precio_eur DECIMAL,
+                    precio_pen DECIMAL
                 )''')
+
+cursor.execute(sentencia)
+
+precio_usd=bitcoin('USD')
+precio_gbp=bitcoin('GBP')
+precio_eur=bitcoin('EUR')
+tipo_cambio_pen=tipo_cambio()
+
+
+
+precio_pen = precio_usd * tipo_cambio_pen
+
+conn.commit()
+
+cursor.execute("SELECT precio_pen, precio_eur FROM bitcoin")
+row = cursor.fetchone()
+precio_compra_pen = 10 * row[0]
+precio_compra_eur = 10 * row[1]
+
+print(f"Precio de comprar 10 bitcoins en PEN: {precio_compra_pen} PEN")
+print(f"Precio de comprar 10 bitcoins en EUR: {precio_compra_eur} EUR")
+
+conn.close()
