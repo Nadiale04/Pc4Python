@@ -1,0 +1,12 @@
+>>>>>>>>>>>>>>> USD <<<<<<<<<<<<<<<
+Valor: 64,366.152
+Descripcion: United States Dollar
+
+>>>>>>>>>>>>>>> GBP <<<<<<<<<<<<<<<
+Valor: 51,670.701
+Descripcion: British Pound Sterling
+
+>>>>>>>>>>>>>>> EUR <<<<<<<<<<<<<<<
+Valor: 60,391.542
+Descripcion: Euro
+
